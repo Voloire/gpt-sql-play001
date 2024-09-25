@@ -1,0 +1,7 @@
+OPENAI_API_KEY=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
+DB_HOST=codemotion2024.postgres.database.azure.com
+DB_NAME=fivedb
+DB_USER=voloirex
+DB_PASSWORD=Samarcanda_69
+DB_PORT=5432
+

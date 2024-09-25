@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Voloire's ChatGPT SQL Query App</title>
+</head>
+<body>
+    <h1>Voloire's ChatGPT SQL Query App In do mazz</h1>
+    <form method="post">
+        <textarea name="user_input" rows="4" cols="50" placeholder="Enter your query here...">{{ user_input }}</textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+    {% if sql_query %}
+        <h2>Generated SQL Query:</h2>
+        <pre>{{ sql_query }}</pre>
+    {% endif %}
+    {% if result %}
+        <h2>Results:</h2>
+        <table border="1">
+            <tr>
+                {% for column in result.columns %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in result.rows %}
+                <tr>
+                    {% for item in row %}
+                        <td>{{ item }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    {% elif error %}
+        <h2>Error:</h2>
+        <p>{{ error }}</p>
+    {% endif %}
+</body>
+</html>

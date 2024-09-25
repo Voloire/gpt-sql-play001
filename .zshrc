@@ -1,0 +1,2 @@
+
+. "$HOME/.grit/bin/env"

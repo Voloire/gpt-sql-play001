@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Voloirex - ChatGPT SQL Query App</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <!-- Custom Styles -->
+    <style>
+        body {
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Voloirex - ChatGPT SQL Query App</h1>
+        <form method="post">
+            <div class="form-group">
+                <label for="user_input">Enter your query:</label>
+                <textarea class="form-control" id="user_input" name="user_input" rows="3" placeholder="Enter your query here...">{{ user_input }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+        {% if sql_query %}
+            <h2 class="mt-5">Generated SQL Query:</h2>
+            <pre>{{ sql_query }}</pre>
+        {% endif %}
+        {% if result %}
+            <h2 class="mt-5">Results:</h2>
+            <table class="table table-dark table-striped table-bordered">
+                <thead>
+                    <tr>
+                        {% for column in result.columns %}
+                            <th>{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in result.rows %}
+                        <tr>
+                            {% for item in row %}
+                                <td>{{ item }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% elif error %}
+            <div class="alert alert-danger mt-5" role="alert">
+                <strong>Error:</strong> {{ error }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

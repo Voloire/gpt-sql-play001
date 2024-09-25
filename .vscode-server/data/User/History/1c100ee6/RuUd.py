@@ -1,0 +1,69 @@
+from flask import Flask, render_template, request
+import openai
+import psycopg2
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = Flask(__name__)
+
+openai.api_key = os.getenv('OPENAI_API_KEY')
+
+db_config = {
+    'host': os.getenv('DB_HOST'),
+    'database': os.getenv('DB_NAME'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'port': os.getenv('DB_PORT', 5432),
+    'sslmode': 'require'
+}
+
+def generate_sql_query(natural_language_query):
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a helpful assistant that converts natural language questions into SQL queries for a PostgreSQL database."
+        },
+        {
+            "role": "user",
+            "content": f"Convert the following natural language query into a SQL query for PostgreSQL:\n\n{natural_language_query}"
+        }
+    ]
+    response = openai.ChatCompletion.create(
+        model='gpt-4',  # or 'gpt-4' if available
+        messages=messages,
+        max_tokens=150,
+        temperature=0,
+        n=1,
+        stop=None
+    )
+    sql_query = response['choices'][0]['message']['content'].strip()
+    return sql_query
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    result = None
+    user_input = ''
+    error = None
+    sql_query = ''
+    if request.method == 'POST':
+        user_input = request.form['user_input']
+        try:
+            sql_query = generate_sql_query(user_input)
+            conn = psycopg2.connect(**db_config)
+            cur = conn.cursor()
+            cur.execute(sql_query)
+            # Fetch column names
+            colnames = [desc[0] for desc in cur.description]
+            # Fetch all rows
+            rows = cur.fetchall()
+            result = {'columns': colnames, 'rows': rows}
+            cur.close()
+            conn.close()
+        except Exception as e:
+            error = str(e)
+    return render_template('index.html', result=result, user_input=user_input, sql_query=sql_query, error=error)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
